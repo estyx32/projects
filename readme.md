@@ -32,5 +32,3 @@ Document how to install Kubernetes locally
 7. Start and stop Kubernetes to save battery 
 
     Use `microk8s start` and `microk8s stop` to turn microk8s on and off
-
-Test
