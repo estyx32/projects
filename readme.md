@@ -1,5 +1,7 @@
 # Project Setups
 
+# Kubernetes
+
 Document how to install Kubernetes locally and view the Kubernets Dashboard
 
 1. Install MicroK8s on Linux
@@ -37,3 +39,14 @@ Document how to install Kubernetes locally and view the Kubernets Dashboard
 Use this token in the https login UI of the kubernetes-dashboard service.
 
 `microk8s kubectl describe secret -n kube-system microk8s-dashboard-token`
+
+# Create a namespace for the deployment
+
+1. kubectl create namespace <namespace-name>
+
+    You can also manage this with a YAML file (recomended)
+
+`apiVersion: v1`
+`kind: Namespace`
+`metadata:`
+  `name: <namespace-name>`
