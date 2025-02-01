@@ -1,4 +1,4 @@
-# Project Setups
+# Project Setup
 
 # Kubernetes
 
@@ -35,18 +35,34 @@ Document how to install Kubernetes locally and view the Kubernets Dashboard
 
     Use `microk8s start` and `microk8s stop` to turn microk8s on and off
 
-# Viewing the kubernetes-dashboard
-Use this token in the https login UI of the kubernetes-dashboard service.
+8. View the kubernetes-dashboard
+    
+    Use this token in the https login UI of the kubernetes-dashboard service.
 
-`microk8s kubectl describe secret -n kube-system microk8s-dashboard-token`
+    `microk8s kubectl describe secret -n kube-system microk8s-dashboard-token`
 
-# Create a namespace for the deployment
+# Helm
 
-1. kubectl create namespace <namespace-name>
+Document how to install Helm to manage deployment of resources to the microk8s cluster
 
-    You can also manage this with a YAML file (recomended)
+1. Use curl to pull down Helm
 
-`apiVersion: v1`
-`kind: Namespace`
-`metadata:`
-  `name: <namespace-name>`
+    `curl -O https://get.helm.sh/helm-v3.16.2-linux-amd64.tar.gz`
+
+2. Unpack the file
+
+    `tar xvf helm-v3.16.2-linux-amd64.tar.gz`
+
+3. Move the linux-amd64/helm file to the /usr/local/bin directory:
+
+    `sudo mv linux-amd64/helm /usr/local/bin`
+
+4. Remove the downloaded file using the following command:
+
+    `rm helm-v3.16.2-linux-amd64.tar.gz`
+
+5. Finally, verify you installed Helm by checking the version of the software:
+
+    `helm version`
+
+    The terminal should print out the version of Helm that is installed
