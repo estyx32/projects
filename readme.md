@@ -1,6 +1,6 @@
 # Project Setups
 
-Document how to install Kubernetes locally
+Document how to install Kubernetes locally and view the Kubernets Dashboard
 
 1. Install MicroK8s on Linux
 
@@ -32,3 +32,8 @@ Document how to install Kubernetes locally
 7. Start and stop Kubernetes to save battery 
 
     Use `microk8s start` and `microk8s stop` to turn microk8s on and off
+
+# Viewing the kubernetes-dashboard
+Use this token in the https login UI of the kubernetes-dashboard service.
+
+`microk8s kubectl describe secret -n kube-system microk8s-dashboard-token`
