@@ -1,14 +1,20 @@
+# Helm Projects
+
 # Project Setup
 
-# Kubernetes
+The following directions will help get MicroK8s and Helm running on your local machine to host Ollama or any other application on MicroK8s
 
-Document how to install Kubernetes locally and view the Kubernets Dashboard
+These 
+
+# MicroK8s
+
+Document how to install MicroK8s locally and view the Kubernets Dashboard
 
 1. Install MicroK8s on Linux
 
     `sudo snap install microk8s --classic`
 
-2. Add your user to the microk8s admin group
+2. Add your user to the MicroK8s admin group
 
     `sudo usermod -a -G microk8s $USER` \
     `sudo chown -f -R $USER ~/.kube`
@@ -17,9 +23,9 @@ Document how to install Kubernetes locally and view the Kubernets Dashboard
 
     `su - $USER`
 
-4. Check the status while Kubernetes starts
+4. Check the status while MicroK8s starts
 
-    `microk8s status --wait-ready`
+    `MicroK8s status --wait-ready`
 
 5. Turn on the services you want
 
@@ -27,23 +33,23 @@ Document how to install Kubernetes locally and view the Kubernets Dashboard
 
     Try `microk8s enable --help` for a list of available services and optional features. `microk8s disable ‹name›` turns off a service
 
-6. Access the Kubernetes dashboard
+6. Access the MicroK8s dashboard
 
     `microk8s dashboard-proxy`
 
-7. Start and stop Kubernetes to save battery 
+7. Start and stop MicroK8s to save battery 
 
-    Use `microk8s start` and `microk8s stop` to turn microk8s on and off
+    Use `microk8s start` and `microk8s stop` to turn MicroK8s on and off
 
-8. View the kubernetes-dashboard
+8. View the MicroK8s-dashboard
     
-    Use this token in the https login UI of the kubernetes-dashboard service.
+    Use this token in the https login UI of the MicroK8s-dashboard service.
 
     `microk8s kubectl describe secret -n kube-system microk8s-dashboard-token`
 
 # Helm
 
-Document how to install Helm to manage deployment of resources to the microk8s cluster
+Document how to install Helm to manage deployment of resources to the MicroK8s cluster
 
 1. Use curl to pull down Helm
 
