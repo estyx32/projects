@@ -6,7 +6,7 @@ The following directions will help get MicroK8s and Helm running on your local m
 
 # MicroK8s
 
-Document how to install MicroK8s locally and view the Kubernets Dashboard
+Document how to install MicroK8s locally and view the MicroK8s Dashboard
 
 1. Install MicroK8s on Linux
 
@@ -23,7 +23,7 @@ Document how to install MicroK8s locally and view the Kubernets Dashboard
 
 4. Check the status while MicroK8s starts
 
-    `MicroK8s status --wait-ready`
+    `microk8s status --wait-ready`
 
 5. Turn on the services you want
 
