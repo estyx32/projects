@@ -26,5 +26,5 @@
 
     `microk8s kubectl -n ollama port-forward service/ollama 11434:80`
 
-8. Visit `http://localhost:11434/`, you should see \ "Ollama is running" in a webpage
+8. Visit `http://localhost:11434/`, you should see "Ollama is running" on the webpage
 
