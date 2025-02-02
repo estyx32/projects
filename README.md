@@ -4,8 +4,6 @@
 
 The following directions will help get MicroK8s and Helm running on your local machine to host Ollama or any other application on MicroK8s
 
-These 
-
 # MicroK8s
 
 Document how to install MicroK8s locally and view the Kubernets Dashboard
