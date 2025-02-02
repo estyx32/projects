@@ -30,7 +30,7 @@
 
 # Install curl
 
-`curl` does not ship with microk8s, it is neccessary to install it to ensure you can test the pod from your local machine to talk to the model through the API
+`curl` does not ship with MicroK8s, it is neccessary to install it to ensure you can test the pod from your local machine to talk to the model through the API
 
 1. Run `kubectl exec -n ollama <ollama-podhash> -it -- /bin/sh`
 
