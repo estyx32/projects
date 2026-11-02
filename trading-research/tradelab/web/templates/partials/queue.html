@@ -1,0 +1,48 @@
+<div class="card">
+  <h2>Proposals waiting for you <span class="count">{{ queue.pending | length }}</span></h2>
+  {% if not queue.pending %}
+    <p class="empty">Nothing waiting. Claude's trade ideas appear here after the risk gate passes them.</p>
+  {% endif %}
+  {% for p in queue.pending %}
+  <article class="proposal">
+    <header>
+      <strong>{{ p.ticker }}</strong>
+      <span class="pill {{ 'ok' if p.direction == 'long' else 'warn' }}">{{ p.direction | upper }} {{ p.instrument }}</span>
+      <span class="muted">by {{ p.proposed_by }} &middot; {{ p.created_at | age }}</span>
+    </header>
+    <dl class="kv">
+      <dt>Entry</dt><dd>{{ p.entry_price | money }}</dd>
+      <dt>Stop</dt><dd>{{ p.stop_price | money }}</dd>
+      <dt>Size</dt><dd>{{ p.qty }} share{{ "" if p.qty == 1 else "s" }} &middot; {{ p.size_pct_account | pct_pts }} of account</dd>
+      <dt>Risk if stopped</dt><dd>{{ p.risk_dollars | money }}</dd>
+      <dt>Source tier</dt><dd>{{ p.source_tier }} &middot; {{ p.idea_source }}</dd>
+      <dt>Regime</dt><dd>{{ p.regime | replace("_", " ") }}</dd>
+    </dl>
+    <p><span class="label">Variant view</span> {{ p.variant_view }}</p>
+    <p><span class="label">Catalyst</span> {{ p.catalyst }}</p>
+    <p><span class="label">Invalidation</span> {{ p.invalidation }}</p>
+    <details>
+      <summary>Risk checks passed ({{ p.passed_checks | length }})</summary>
+      <ul>{% for c in p.passed_checks %}<li>{{ c }}</li>{% endfor %}</ul>
+    </details>
+    <div class="actions">
+      <button class="btn primary" data-action="decide" data-id="{{ p.id }}" data-verb="approve">Approve (shadow)</button>
+      <button class="btn" data-action="decide" data-id="{{ p.id }}" data-verb="reject">Reject</button>
+    </div>
+  </article>
+  {% endfor %}
+
+  <h3>Recent decisions</h3>
+  {% if not queue.recent %}<p class="empty">No decisions yet.</p>{% endif %}
+  <table>
+    {% for p in queue.recent %}
+    <tr>
+      <td><strong>{{ p.ticker }}</strong> {{ p.direction }}</td>
+      <td><span class="pill {{ {'approved': 'ok', 'rejected': 'warn', 'blocked': 'bad'}[p.status] }}">{{ p.status }}</span></td>
+      <td class="muted">
+        {% if p.status == "blocked" %}{{ p.blocked_reasons | join("; ") }}{% else %}{{ p.decided_by or "" }} &middot; {{ p.decided_at | local_time }}{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>

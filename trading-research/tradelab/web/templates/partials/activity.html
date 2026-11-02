@@ -1,0 +1,13 @@
+<div class="card">
+  <h2>What the system is doing</h2>
+  {% if not activity.events %}<p class="empty">No activity recorded yet.</p>{% endif %}
+  <ol class="feed">
+    {% for e in activity.events %}
+    <li>
+      <span class="when" title="{{ e.ts }}">{{ e.ts | local_time }}</span>
+      <span class="actor {{ e.actor }}">{{ e.actor | replace("_", " ") }}</span>
+      <span class="msg">{{ e.message }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+</div>

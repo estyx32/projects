@@ -1,0 +1,36 @@
+<div class="statusbar">
+  <div class="tile">
+    <span class="label">Mode</span>
+    <span class="value">{{ status.mode | upper }}</span>
+    <span class="hint">{% if status.mode == "shadow" %}orders are recorded, never sent{% endif %}</span>
+  </div>
+  <div class="tile">
+    <span class="label">Equity</span>
+    <span class="value">{{ status.equity | money }}</span>
+    <span class="hint">{{ status.drawdown | pct_frac }} below peak &middot; {{ status.daily_loss | pct_frac }} down today</span>
+  </div>
+  <div class="tile">
+    <span class="label">Regime</span>
+    <span class="value pill {{ status.regime_class }}">{{ status.regime.label | replace("_", " ") | upper }}</span>
+    <span class="hint">{% if status.regime.complete %}computed from stored data{% else %}cannot verify, trading blocked{% endif %}</span>
+  </div>
+  <div class="tile">
+    <span class="label">Worker</span>
+    <span class="value pill {{ status.heartbeat_class }}">{{ status.heartbeat_text | upper }}</span>
+    <span class="hint">last beat {{ status.heartbeat | age }}</span>
+  </div>
+  <div class="tile killtile {% if status.kill %}on{% endif %}">
+    <span class="label">Kill switch</span>
+    <span class="value">{{ "ON" if status.kill else "off" }}</span>
+    {% if status.kill %}
+      <button class="btn" data-action="kill" data-on="false">Resume trading</button>
+    {% else %}
+      <button class="btn danger" data-action="kill" data-on="true">Stop everything</button>
+    {% endif %}
+  </div>
+</div>
+<ul class="reasons">
+  {% for r in status.regime.reasons %}<li>{{ r }}</li>{% endfor %}
+  {% for s in status.shocks %}<li class="bad-text">Global shock, new longs paused: {{ s }}</li>{% endfor %}
+</ul>
+<p class="fresh">Prices updated {{ status.prices_at | age }} &middot; market data updated {{ status.snapshots_at | age }}</p>

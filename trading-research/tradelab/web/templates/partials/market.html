@@ -1,0 +1,30 @@
+<div class="card">
+  <h2>Global markets</h2>
+  {% if not market.groups %}<p class="empty">No market data stored yet.</p>{% endif %}
+  {% for label, rows in market.groups %}
+  <h3>{{ label }}</h3>
+  <table class="mkt">
+    {% for m in rows %}
+    <tr>
+      <td><strong>{{ m.symbol }}</strong></td>
+      <td class="r">{{ m.value | num(2) }}</td>
+      <td class="r {{ m.change_pct | change_class }}">{{ m.change_pct | pct_frac(2, true) }}</td>
+      <td class="muted">{{ m.as_of | local_time }}{% if m.stale %} <span class="pill bad">stale</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endfor %}
+
+  <h3>News</h3>
+  {% if not market.news %}<p class="empty">No news stored yet.</p>{% endif %}
+  <ul class="news">
+    {% for n in market.news %}
+    <li>
+      <span class="pill {{ {'high': 'bad', 'medium': 'warn', 'low': 'flat'}.get(n.impact, 'flat') }}">{{ n.impact or "unrated" }}</span>
+      {% if n.link %}<a href="{{ n.link }}" rel="noopener noreferrer" target="_blank">{{ n.headline }}</a>{% else %}{{ n.headline }}{% endif %}
+      <span class="muted">{{ n.region }} &middot; {{ n.topic or "uncategorized" }} &middot; {{ n.published_at | local_time }}
+      {% if not n.human_verified %}&middot; unverified classification{% endif %}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
