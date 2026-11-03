@@ -1,1 +1,0 @@
-"""Trading research data layer."""
