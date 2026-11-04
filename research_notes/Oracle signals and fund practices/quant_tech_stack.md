@@ -74,7 +74,7 @@ The data layer (DuckDB, Polars, pandas, Parquet) is very healthy, and all three 
 ## Q2. Can DuckDB query a SQLite file directly, and is that a good pattern for research on top of an OLTP store?
 
 ### Takeaway
-Yes. DuckDB's core `sqlite` extension can `ATTACH` a SQLite file and read its tables as if they were DuckDB tables. Locking is delegated to SQLite, so there are many concurrent readers and one writer. That works well for ad-hoc analysis over a WAL-mode SQLite system of record. The extension can also write, and there is no confirmed read-only flag, so research access should go through a read-only path or a periodic Parquet export.
+Yes. DuckDB's core `sqlite` extension can `ATTACH` a SQLite file and read its tables as if they were DuckDB tables. Locking is delegated to SQLite, so there are many concurrent readers and one writer. That works well for ad-hoc analysis over a WAL-mode SQLite system of record. The extension can also write, so research access should use `ATTACH ... (TYPE sqlite, READ_ONLY)` or a periodic Parquet export.
 
 ### Cited Findings
 - `ATTACH 'file.db' AS name;` lets "the tables in the file … be read as if they were normal DuckDB tables". Data is read from SQLite at query time. — [duckdb/duckdb-sqlite README](https://github.com/duckdb/duckdb-sqlite)
@@ -82,18 +82,18 @@ Yes. DuckDB's core `sqlite` extension can `ATTACH` a SQLite file and read its ta
 - Concurrency is handled by SQLite, not DuckDB: mutexes within a process and file-system locks across processes. Many readers and one writer, and behaviour depends on SQLite settings such as WAL mode. — [DuckDB SQLite extension docs (current)](https://duckdb.org/docs/current/core_extensions/sqlite) (via search summary; page not directly fetchable)
 - Newer docs list `BUSY_TIMEOUT` (default 5000 ms) and `JOURNAL_MODE` attach options. — [DuckDB 2.0 SQLite docs](https://duckdb.org/docs/2.0/core_extensions/sqlite) (via search summary)
 - `sqlite_all_varchar` reads every column as VARCHAR. It avoids type-mismatch errors caused by SQLite's dynamic typing, and it must be set before ATTACH. — [DuckDB SQLite docs](https://duckdb.org/docs/current/core_extensions/sqlite) (via search summary)
-- A read-only ATTACH flag for SQLite was not confirmed in the retrieved material.
+- Local test, DuckDB 2.0.0: `ATTACH 'x.db' AS o (TYPE sqlite, READ_ONLY)` blocked an INSERT and saw rows held in the WAL. A SQLite trigger fired on an UPDATE sent through a writable attach. `ATTACH 'file:x.db?mode=ro'` was taken as a literal filename and created a new, empty database.
 
 ### Inferences
 - **Good pattern at this scale:** the worker writes to SQLite (WAL), and research uses DuckDB `ATTACH` for ad-hoc joins and window functions. WAL readers don't block the writer.
 - **Caveats:**
-  - DuckDB writes are allowed, so the immutability triggers in SQLite are the real guard. Triggers fire on writes via DuckDB too, because SQLite itself executes them. This is worth testing explicitly.
-  - Opening the file with a SQLite URI `mode=ro`, or with a separate OS-level read-only copy, is safer than relying on discipline.
+  - DuckDB writes are allowed on a writable attach, so the immutability triggers in SQLite are the real guard. Triggers fire on writes via DuckDB too, because SQLite itself executes them (confirmed in the local test).
+  - Attaching with `READ_ONLY` is safer than relying on discipline. Do not use a `mode=ro` URI in `ATTACH`. Take any copy of the live file with SQLite's backup API, because in the local test a plain file copy missed a committed row still in the WAL.
   - Scans through the extension are row-store reads, so repeated heavy backtests re-read and re-convert data each time.
 - **Recommended layering:** keep SQLite as the system of record. Run a nightly or on-demand `COPY (SELECT … ) TO 'snapshot_YYYYMMDD/*.parquet'` to create immutable, versioned research snapshots. Run backtests against Parquet with DuckDB or Polars. This gives reproducibility (a backtest is pinned to a snapshot hash) and isolates research from production writes.
 
 ### Gaps
-- Official confirmation of read-only attach semantics and of trigger behaviour when writing through DuckDB.
+- Official documentation of read-only attach semantics. The behaviour above was tested locally only.
 - No measured benchmark of `sqlite_scan` throughput against Parquet for this data size was found.
 
 ## Q3. Which backtesting frameworks correctly handle point-in-time fundamentals, delistings and corporate actions, and how much do they cost?
@@ -181,7 +181,7 @@ The architecture fits the scale. Its strongest features are the shared determini
 
 ### Inferences
 **Recommendations for this architecture** (synthesis, not sourced as a single claim):
-1. **DuckDB now.** Use it as a research query engine with `ATTACH` on the SQLite file, read-only by convention and ideally by URI `mode=ro`. It brings SQL window functions and `ASOF JOIN` for point-in-time joins at no operational cost.
+1. **DuckDB now.** Use it as a research query engine with `ATTACH` on the SQLite file, attached with `READ_ONLY`. It brings SQL window functions and `ASOF JOIN` for point-in-time joins at no operational cost.
 2. **Parquet research store when needed.** Add it when any of these apply:
    - backtests run often or as parameter sweeps
    - you want each backtest or LLM proposal pinned to an immutable data snapshot (record the snapshot id or hash in the audit log)

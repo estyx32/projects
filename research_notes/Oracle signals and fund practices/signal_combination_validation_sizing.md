@@ -7,7 +7,7 @@ Scope note: methods usable with free daily data and a universe of tens to a few 
 ## Q1. What is the minimum validation standard a one-person system should hold a new signal to before trading it?
 
 ### Takeaway
-A one-person system should log every variant it tests, then demand three things of a signal: a multiple-testing-aware hurdle (t-stat around 3, or a Deflated Sharpe Ratio of at least 0.95 that counts all trials), evidence that it holds up out of sample (an untouched holdout, or a CPCV/PBO estimate showing the in-sample winner does not usually rank below the median out of sample), and profitability net of costs on point-in-time, survivorship-free data. Size the position as if the signal will lose about a third to a half of its backtested edge, because published anomalies do.
+A one-person system should log every variant it tests, then demand three things of a signal: a multiple-testing-aware hurdle (t-stat around 3, or a Deflated Sharpe Ratio of at least 0.95 that counts all trials), evidence that it holds up out of sample (an untouched holdout, or a CPCV/PBO estimate showing the in-sample winner does not usually rank below the median out of sample), and profitability net of costs on point-in-time, survivorship-free data. Size the position as if the signal will lose about half or more of its backtested edge, because published anomalies do.
 
 ### Cited Findings
 
@@ -37,7 +37,7 @@ A one-person system should log every variant it tests, then demand three things 
   3. **Statistical hurdle.** Require a cross-sectional IC t-stat or long-short t-stat of at least 3 for a genuinely new idea. A t of about 2 is acceptable for a replicated, published predictor with economic rationale, given the Chen–Zimmermann evidence. Also require DSR ≥ 0.95 computed with the logged N.
   4. **Out-of-sample evidence.** Hold out the last 20–30% of history, or a separate sub-universe, and touch it once. Additionally run CSCV/PBO across the logged variants and reject if PBO exceeds about 0.5. With small universes and daily data, purge and embargo by at least the label horizon.
   5. **Net of cost.** Use a realistic spread and impact model plus borrow cost for shorts. The signal must survive at the intended turnover, and a buy/hold band is the first thing to try.
-  6. **Haircut.** Size on the expectation that live edge will be about 50–65% of the backtest, in line with McLean–Pontiff-style decay.
+  6. **Haircut.** Size on the expectation that live edge will be about 40–50% of the backtest, in line with McLean–Pontiff's published 58% decline. The working paper's 35% would imply 65%.
   7. **Paper trade.** Run a short live paper period (for example one to three months, or at least about 30 independent signal observations) to catch data and timing bugs rather than to prove edge, which takes much longer.
 - With small breadth (tens to hundreds of names) and a realistic IC of 0.02–0.05, several years of history are needed before a t-stat of 3 is reachable. That is a strong argument for preferring published, economically motivated signals over novel data-mined ones.
 
@@ -67,7 +67,7 @@ Out of sample, estimation error usually swamps the theoretical gains from optimi
 ### Inferences
 - **Practical combination recipe for a small universe (synthesis):**
   1. For each signal, each day: winsorize (for example at the 1st/99th percentile, or ±3σ), then cross-sectionally z-score or convert to ranks or normal scores. Ranks are more robust with tens of names and fat tails.
-  2. Residualize each signal against known exposures (market beta, sector dummies, log size, 12-1 momentum) with a cross-sectional regression, keeping the residual. This makes "new" signals show their incremental information and stops the composite from being a disguised momentum or size bet.
+  2. Residualize each signal against known exposures (market beta, sector dummies, log size, 12-1 momentum) with a cross-sectional regression, keeping the residual. Leave a signal's own factor out of the controls, or momentum residualizes to zero. This makes "new" signals show their incremental information and stops the composite from being a disguised momentum or size bet.
   3. Measure each residualized signal's Spearman rank IC at several horizons (for example 1, 5, 21 and 63 days) to get an IC-decay curve. The horizon where cumulative IC peaks, net of cost, sets the holding period.
   4. Combine with equal weights on the z-scores. If weighting at all, shrink IC- or IR-proportional weights heavily toward equal (for example 50/50 or more), and re-estimate only on expanding windows. Avoid unconstrained regression or mean-variance weights across signals: with a few years of daily cross-sections, the signal covariance and mean IC are estimated far too noisily (DeMiguel et al. logic).
   5. Orthogonalize signals against each other only if two are highly correlated (for example ρ > 0.7). Otherwise equal-weighting already diversifies.
@@ -92,7 +92,7 @@ Record a structured, timestamped snapshot at decision time: each signal's raw va
 - Bailey & López de Prado's DSR requires the number of trials and the moments of returns, so the trial log is a required input rather than optional bookkeeping. [Academic] — [SSRN 2460551](https://papers.ssrn.com/abstract=2460551)
 
 ### Inferences
-- **Suggested proposal record (one row per proposal, immutable once created; synthesis):**
+- **Suggested proposal record (one row per proposal, immutable once created, with outcomes in a separate append-only table; synthesis):**
   - `proposal_id`, `created_at` (timestamp), `ticker`, `direction`, `data_asof` (latest data date used, to keep the record point-in-time)
   - Per signal *i*: `raw_i`, `z_i` (cross-sectional z or percentile), `resid_z_i` (after beta/sector/size/momentum neutralization), `weight_i`, `signal_version_i` (code or parameter hash, linked to the trial log)
   - `composite_score`, plus `expected_excess_return` and `expected_vol` over the horizon
@@ -102,9 +102,9 @@ Record a structured, timestamped snapshot at decision time: each signal's raw va
   - `invalidation`: a price level (for example k × ATR or k × σ from entry), a fundamental condition (for example "guidance cut"), and a time stop (`horizon_days` elapsed)
   - `size_rule` and inputs (target risk, σ estimate, resulting weight)
   - Factor exposures at entry: beta, sector, size and momentum loadings
-  - Outcome fields, filled later: realized total return, realized factor-adjusted residual return over the same horizon, max adverse excursion, exit reason, cost paid
-- **Attribution:** pool all closed proposals periodically. Compute each signal's realized rank IC between `resid_z_i` and the residual return, and the IC of `analyst_score`. A regression of residual returns on all component scores gives each component's marginal contribution, and it should include the analyst score as one component. If the analyst's marginal IC is near zero after controlling for the quant signals, the judgment is adding noise. Use it as a veto or filter (for example for data errors or pending corporate actions) rather than a weight.
-- **Quantamental combination:** treat the analyst score as just another standardized signal with an initially small weight (equal weight at most). Raise it only once a track record of at least about 50–100 independent calls shows positive IC. Keep discretionary overrides logged as trials.
+  - Outcome fields, in the separate outcome table: realized total return, realized factor-adjusted residual return over the same horizon, max adverse excursion, exit reason, cost paid
+- **Attribution:** pool all proposals whose horizon has elapsed, including rejected and unfilled ones scored on shadow outcomes, because pooling only approved trades compresses the IC of the scores used to select them. Strip only market and sector from the return when testing a signal that is itself a style factor. Compute each signal's realized rank IC between `resid_z_i` and the residual return, and the IC of `analyst_score`. A regression of residual returns on all component scores gives each component's marginal contribution, and it should include the analyst score as one component. If the analyst's marginal IC is near zero after controlling for the quant signals, the judgment is adding noise. Use it as a veto or filter (for example for data errors or pending corporate actions) rather than a weight.
+- **Quantamental combination:** treat the analyst score as just another standardized signal, logged with zero weight at first. Give it weight only once its IC reaches t ≈ 2. Since n ≈ (t/IC)², that takes about 400 independent calls at an IC of 0.10 and about 1,600 at 0.05. Keep discretionary overrides logged as trials.
 - Because the universe is small and proposals overlap in time, IC estimates from closed proposals will be noisy. Report them with standard errors and, where possible, aggregate by month rather than by trade.
 
 ### Gaps

@@ -122,7 +122,7 @@ Griffin consistently puts Citadel's edge in predictive analytics, risk managemen
 ## Q6. What can a one-person, free-data system copy, and what cannot be copied?
 
 ### Takeaway
-The process disciplines carry over well: a pre-committed risk budget per idea, hard drawdown stops on the whole book and on each idea, measuring skill net of market, sector and style returns, attribution, and journaling ideas with catalysts. The scale economics do not: 9-12x gross leverage, cheap financing and borrow, institutional execution, paid alt data and commercial risk models, a central risk staff of 50+, and dozens of independent pods that diversify each other.
+The process disciplines carry over well: a pre-committed risk budget per idea, hard drawdown stops on the whole book and on each idea, measuring skill net of market, sector and style returns, attribution, and journaling ideas with catalysts. The scale economics do not: 9-12x gross leverage, cheap financing and borrow, institutional execution, paid alt data and commercial risk models, a central risk staff of 50+, and about 150-300 independent pods that diversify each other.
 
 ### Cited Findings (anchors for the transferable practices)
 - Hard, pre-committed drawdown ladder (cut risk at about -2.5 to -5%, stop at about -7.5%), as practised by Millennium-style platforms — [eFinancialCareers/WSJ](https://www.efinancialcareers.com/news/pratik-madhvani-glen-scheinberg); [Navnoor Bawa](https://www.navnoorbawaresearch.com/p/millennium-and-balyasnys-stop-loss)

@@ -143,10 +143,9 @@ Verification practice centres on grounding outputs in cited source spans, schema
   - Federal Reserve Board (Nov 2025): LLM agents were rational 61-97% of the time vs 46-51% for humans in lab experiments, but they can be induced to herd. — [FRBSF / Fed Board](https://www.frbsf.org/research-and-insights/publications/board-of-governors/2025/11/financial-stability-implications-generative-ai-taming-the-animal-spirits/); [Investment Executive](https://www.investmentexecutive.com/news/research-and-markets/ai-traders-more-rational-less-herd-like/)
   - Gensler & Bailey (2020) argued that model standardization and interconnection raise herding risk. — [MIT Sloan](https://mitsloan.mit.edu/node/45966)
   - Lopez-Lira & Tang's finding that strategy returns decline as adoption rises is direct evidence of crowding in one signal. — [arXiv v6](https://arxiv.org/html/2304.07619v6)
-- **Citations / structured outputs (vendor documentation, via third-party sources):**
+- **Citations / structured outputs:**
   - Anthropic's Citations feature returns `cited_text` with `document_index` and start/end character offsets, letting each claim be checked against the exact source span. — [claudemaster guide](https://claudemaster.net/learn/how-to-add-citations-to-claude-api-responses); [Citeformer ADR-013](https://citeformer.readthedocs.io/en/latest/decisions/013-citation-rich-attribution.html)
-  - Several third-party sources say Citations **cannot be combined** with JSON-schema structured outputs in a single request (it returns a 400). — [pydantic.dev](https://pydantic.dev/docs/ai/core-concepts/citations/); [Citeformer ADR-013](https://citeformer.readthedocs.io/en/latest/decisions/013-citation-rich-attribution.html)
-  - Not confirmed against Anthropic's own documentation. Check the current docs.
+  - Anthropic's documentation confirms that Citations **cannot be combined** with structured outputs in a single request (it returns a 400). It suggests asking for one cited `field: value` line per fact and parsing the lines in code. — [Anthropic Citations docs](https://platform.claude.com/docs/en/build-with-claude/citations)
 
 ### Inferences
 Practical design implications for a system where an LLM reads filings and proposes trades, while code verifies the numbers:
@@ -156,7 +155,7 @@ Practical design implications for a system where an LLM reads filings and propos
    - the parsed value matches;
    - it reconciles to XBRL where available.
 
-   If citations and JSON schema cannot be combined in one call, use two passes (cite, then structure) or have code match spans itself.
+   Citations and JSON schema cannot be combined in one call, so use two passes (cite, then structure), parse cited `field: value` lines, or have code match spans itself.
 3. **Treat filings as untrusted input.** The model that reads documents gets no tool access to orders. Trades go through a code-enforced risk layer, with position limits and human approval above thresholds.
 4. **Backtest only with point-in-time inputs and post-cutoff windows** for the exact model version. Freeze model versions per backtest. Consider chronologically consistent models for history. Anonymize to reduce distraction, but do not rely on it against memorization. Revalidate on each model upgrade.
 5. **Prefer the LLM as a feature generator** feeding a simple, conventionally validated model, with realistic costs. Expect small-cap/negative-news concentration and alpha decay as adoption spreads.
@@ -170,4 +169,4 @@ Practical design implications for a system where an LLM reads filings and propos
 - No primary study on **prompt-wording sensitivity** of financial LLM signals was retrieved in this pass. It is a known issue but uncited here.
 - No primary study on **LLM overconfidence or calibration** in financial forecasting was retrieved.
 - No practitioner write-ups (Man Group, Two Sigma, Bridgewater AIA, JPMorgan, Goldman) on verification workflows were retrieved. Claims about industry practice in the Inferences above are design reasoning, not documented practice.
-- Anthropic and OpenAI official structured-output and citation documentation was not fetched directly.
+- OpenAI's official structured-output and citation documentation was not fetched directly.

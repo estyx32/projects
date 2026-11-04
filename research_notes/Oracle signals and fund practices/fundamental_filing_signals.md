@@ -15,7 +15,7 @@ Notes for the report writer. Not financial advice.
 Most published anomalies replicate in-sample with CAPM alphas (JKP 2023). However, their returns fall by roughly half to 60% after publication (McLean & Pontiff 2016). About two-thirds lose significance once microcaps are down-weighted (Hou, Xue & Zhang 2020). Only low-turnover signals reliably survive trading costs (Novy-Marx & Velikov 2016). For a retail trader in large and mid caps, a reasonable starting assumption is that a published filing signal keeps a small fraction of its paper alpha.
 
 ### Cited Findings
-- **McLean & Pontiff (2016), JF 71(1) [PR]:** studies 97 predictors. Returns are about 26% lower out-of-sample and about 58% lower after publication. That implies roughly 32% of the decline comes from publication-informed trading. Trading volume and short interest in the predictor stocks rise after publication. — [CFA Digest summary](https://rpc.cfainstitute.org/research/cfa-digest/2016/06/does-academic-research-destroy-stock-return-predictability-digest-summary); [paper PDF](https://Www.Gwern.net/doc/economics/2016-mclean.pdf) [verified this session]
+- **McLean & Pontiff (2016), JF 71(1) [PR]:** studies 97 predictors. Returns are about 26% lower out-of-sample and about 58% lower after publication. The authors attribute the gap of roughly 32 percentage points (58% − 26%) to publication-informed trading. Trading volume and short interest in the predictor stocks rise after publication. — [CFA Digest summary](https://rpc.cfainstitute.org/research/cfa-digest/2016/06/does-academic-research-destroy-stock-return-predictability-digest-summary); [paper PDF](https://Www.Gwern.net/doc/economics/2016-mclean.pdf) [verified this session]
 - **Hou, Xue & Zhang (2020), "Replicating Anomalies," RFS 33(5) [PR]:**
   - The tests use NYSE breakpoints and value weights to limit the influence of microcaps.
   - 65% of 452 anomalies fail |t| ≥ 1.96, including 96% of the trading-frictions category.
@@ -74,7 +74,7 @@ Free EDGAR data is enough to build all of these signals. The main risk is look-a
 - **XBRL coverage:**
   - Phased in from 2009 (large accelerated filers) to 2011 (all filers).
   - Before 2009 there is no structured free data. The fallbacks are the SEC Financial Statement Data Sets (also XBRL-based, from 2009) or parsing HTML/text filings.
-  - So a free-data backtest generally starts in 2009-2011, which is entirely **after** publication for every accounting anomaly in this file. That is useful as out-of-sample evidence, but the sample is short (about 15 years).
+  - So a free-data backtest generally starts in 2009-2011. That is **after** publication for accruals, the F-score, net issuance and asset growth, but before publication of gross profitability (2013) and quality minus junk (2019). It is useful as out-of-sample evidence for the older signals, and the sample is short (about 15 years).
 - **Tag inconsistency:** companies use different and custom tags for the same item (for example `Revenues`, `RevenueFromContractWithCustomerExcludingAssessedTax`, `SalesRevenueNet`). Build fallback chains, and check sign conventions.
 - **Fiscal quarter Q4:** Q4 values are usually not reported directly. You get them as the 10-K annual value minus Q1-Q3, and the 10-K comes out later than a 10-Q.
 - **Insider Transactions Data Sets (SEC):** quarterly structured extracts of Forms 3/4/5. Raw Form 4 XML is in EDGAR. Since Sarbanes-Oxley (Aug 2002), Form 4 has been due within 2 business days of the trade.
@@ -166,12 +166,12 @@ Analyst forecast revisions and revision momentum are well documented as predicti
 ## 5. Insider trading from Form 4
 
 ### Takeaway
-Insider **purchases** (not sales) predict returns. Cohen, Malloy & Pomorski (2012) show that the predictive power comes from **opportunistic** insiders, whose trades show no calendar pattern: 82 bp/month value-weighted, while routine insiders earn about zero. The signal is strongest in small, less-covered stocks.
+Insider **purchases** (not sales) predict returns. Cohen, Malloy & Pomorski (2012) show that the predictive power comes from **opportunistic** insiders, whose trades show no calendar pattern: 72 bp/month value-weighted on buys alone and 82 bp/month buys minus sells, while routine buys minus sells earn -20 bp. The signal is strongest in small, less-covered stocks.
 
 ### Cited Findings
 - **Cohen, Malloy & Pomorski (2012), "Decoding Inside Information," JF 67(3):1009-1043 [PR]; NBER WP 16454 (2010):**
-  - Routine insiders are those who traded in the same calendar month in each of the prior 3 years; all others are opportunistic.
-  - The opportunistic-trade portfolio earns 82 bp/month value-weighted (180 bp/month equal-weighted, per AQR's summary). Routine trades earn essentially zero abnormal return.
+  - Only insiders with at least one trade in each of the prior 3 years are classified. Routine insiders traded in the same calendar month for at least 3 consecutive years; the rest of that universe is opportunistic. First-time buyers fall outside the tested sample.
+  - Table IV, five-factor alphas, 1989-2007 (read from the NBER PDF): opportunistic buys minus sells earn 82 bp/month value-weighted (t=2.15) and 180 bp/month equal-weighted (t=6.07). Opportunistic buys alone earn 72 bp and 158 bp. Routine buys minus sells earn -20 bp value-weighted and 43 bp equal-weighted (t=1.73).
   - Opportunistic trades predict future firm news and events.
   - Sources: [NBER](https://www.nber.org/papers/w16454); [AQR (PRACT summary)](https://www.aqr.com/Insights/Research/Journal-Article/Decoding-Inside-Information); [HBS Working Knowledge](https://hbswk.hbs.edu/item/decoding-inside-information) [verified this session]
   - The large gap between the equal-weighted and value-weighted figures signals that much of the effect is in small stocks.
@@ -352,7 +352,7 @@ Michaely, Thaler & Womack (1995) document drift after dividend initiations (posi
 |---|---|---|---|---|---|---|
 | PEAD / SUE / EAR | Bernard & Thomas 1989/90; Martineau 2022 CFR | Historically sizeable; ~0 in large caps since ~2006 | ~60 trading days | Strong decay; 2025 dispute hinges on microcaps | Likely ~nil | XBRL EPS, 8-K 2.02 time, prices |
 | Analyst revisions | Chan, Jegadeesh & Lakonishok 1996 | n/v | 6-12 months | Crowded | Not buildable free; proxies weak | (EAR proxy) |
-| Insider (opportunistic) | Cohen, Malloy & Pomorski 2012 JF | 82 bp/mo VW; 180 bp/mo EW | ~1 month+ | Unverified | Small; effect is small-cap heavy | Form 4 XML |
+| Insider (opportunistic) | Cohen, Malloy & Pomorski 2012 JF | Buys only 72 bp/mo VW, 158 bp/mo EW; long-short 82 and 180 | ~1 month+ | Unverified | Small; effect is small-cap heavy | Form 4 XML |
 | 13D activism | Brav et al. 2008 JF | ~7% (−20, +20) window | Event; no 1-yr reversal | Partly pre-filing | Partial capture only | 13D filings |
 | 13F changes | Agarwal et al. 2013 (confidential holdings) | n/v | Quarterly | 45-day lag | Weak/unclear | 13F data sets |
 | Accruals | Sloan 1996 TAR | n/v | ~1 yr | Largely gone after 2000s (Green et al. 2011) | Weak | XBRL NI, CFO, assets |
